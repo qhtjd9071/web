@@ -1,6 +1,7 @@
 package com.jbsapp.web.member.controller;
 
 import com.jbsapp.web.common.model.CommonResponse;
+import com.jbsapp.web.common.model.ErrorResponse;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.MemberRequest;
 import com.jbsapp.web.member.service.MemberService;
@@ -8,10 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -21,9 +26,16 @@ public class MemberRestController {
 
     private final MemberService memberService;
 
+    // TODO : 비밀번호 패턴 특수문자 조합 체크
     @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody MemberRequest request) {
+    public ResponseEntity<?> join(@Valid @RequestBody MemberRequest request, BindingResult bindingResult) {
         log.info("request : {}", request);
+
+        if (bindingResult.hasErrors()) {
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                return responseError(HttpStatus.BAD_REQUEST, error.getDefaultMessage());
+            }
+        }
 
         Member member = memberService.join(request);
 
@@ -37,5 +49,18 @@ public class MemberRestController {
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private ResponseEntity<?> responseError(HttpStatus status, String message) {
+        CommonResponse<Object> response = CommonResponse.builder()
+                .status(status.value())
+                .error(
+                        ErrorResponse.builder()
+                                .message(message)
+                                .build()
+                )
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

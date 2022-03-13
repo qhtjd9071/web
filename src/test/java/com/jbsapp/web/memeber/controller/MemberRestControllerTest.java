@@ -25,7 +25,7 @@ public class MemberRestControllerTest {
     MockMvc mockMvc;
 
     @Test
-    @DisplayName("회원 가입 테스트")
+    @DisplayName("회원 가입 성공")
     void test01() throws Exception {
         MemberRequest request = MemberRequest.builder()
                 .username("test")
@@ -48,4 +48,95 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
         ;
     }
+
+    @Test
+    @DisplayName("회원 가입 실패 - 아이디 없음")
+    void test02() throws Exception {
+        MemberRequest request = MemberRequest.builder()
+                .password("test1234")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        post("/api/member/join")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("아이디를 입력해주세요.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 가입 실패 - 아이디 길이 초과")
+    void test03() throws Exception {
+        MemberRequest request = MemberRequest.builder()
+                .username("test1234567")
+                .password("test1234")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        post("/api/member/join")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("아이디는 1자 이상 10자 이하입니다.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 가입 실패 - 비밀번호 없음")
+    void test04() throws Exception {
+        MemberRequest request = MemberRequest.builder()
+                .username("test")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        post("/api/member/join")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("비밀번호를 입력해주세요.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 가입 실패 - 비밀번호 길이 초과")
+    void test05() throws Exception {
+        MemberRequest request = MemberRequest.builder()
+                .username("test")
+                .password("test123456789")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        post("/api/member/join")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("비밀번호는 1자 이상 12자 이하입니다.")))
+        ;
+    }
+
 }
