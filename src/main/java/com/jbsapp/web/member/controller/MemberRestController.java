@@ -31,12 +31,6 @@ public class MemberRestController {
     public ResponseEntity<?> join(@Valid @RequestBody MemberRequest request, BindingResult bindingResult) {
         log.info("request : {}", request);
 
-        if (bindingResult.hasErrors()) {
-            for (FieldError error : bindingResult.getFieldErrors()) {
-                return responseError(HttpStatus.BAD_REQUEST, error.getDefaultMessage());
-            }
-        }
-
         Member member = memberService.join(request);
 
         return responseOK(member);
@@ -51,16 +45,4 @@ public class MemberRestController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private ResponseEntity<?> responseError(HttpStatus status, String message) {
-        CommonResponse<Object> response = CommonResponse.builder()
-                .status(status.value())
-                .error(
-                        ErrorResponse.builder()
-                                .message(message)
-                                .build()
-                )
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 }
