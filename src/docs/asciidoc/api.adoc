@@ -1,0 +1,26 @@
+= User API
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+[[resources-post]]
+== Post
+
+[[resources-post-create]]
+=== 회원가입
+
+==== HTTP request
+
+include::{snippets}/member-rest-controller-test/test01/http-request.adoc[]
+
+==== HTTP response
+
+include::{snippets}/member-rest-controller-test/test01/http-response.adoc[]t,http-response']
+
+==== request field description
+
+include::{snippets}/member-rest-controller-test/test01/request-fields.adoc[]
+
+==== response field description
+
+include::{snippets}/member-rest-controller-test/test01/response-fields.adoc[]

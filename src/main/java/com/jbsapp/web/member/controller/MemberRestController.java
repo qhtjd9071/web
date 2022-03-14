@@ -26,7 +26,6 @@ public class MemberRestController {
 
     private final MemberService memberService;
 
-    // TODO : 비밀번호 패턴 특수문자 조합 체크
     @PostMapping("/join")
     public ResponseEntity<?> join(@Valid @RequestBody MemberRequest request, BindingResult bindingResult) {
         log.info("request : {}", request);
