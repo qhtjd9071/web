@@ -15,31 +15,27 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(WebException.class)
 	public ResponseEntity<?> handleWebException(WebException e) {
-		CommonResponse<Object> response = CommonResponse.builder()
-				.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.error(new ErrorResponse(e.getMessage()))
-				.build();
-		log.error("Error Message : {}", e.getMessage());
-		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		return handleCommonException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 	}
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public Object handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-		CommonResponse<Object> response = CommonResponse.builder()
-				.status(HttpStatus.BAD_REQUEST.value())
-				.error(new ErrorResponse(e.getMessage()))
-				.build();
-		log.error("Error Message : {}", e.getMessage());
-		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	@ExceptionHandler(BindingException.class)
+	public Object handleBindingException(BindingException e) {
+		return handleCommonException(HttpStatus.BAD_REQUEST, e.getMessage());
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleUnknownException(Exception e) {
+		return handleCommonException(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown Exception : " + e.getMessage());
+	}
+
+	private ResponseEntity<?> handleCommonException(HttpStatus httpStatus, String message) {
 		CommonResponse<Object> response = CommonResponse.builder()
-				.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.error(new ErrorResponse(e.getMessage()))
+				.status(httpStatus.value())
+				.error(
+						ErrorResponse.builder().message(message).build()
+				)
 				.build();
-		log.error("Error Message : {}", "Unknown Exception : " + e.getMessage());
-		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		log.error("Error Message : {}", message);
+		return new ResponseEntity<>(response, httpStatus);
 	}
 }
