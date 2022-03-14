@@ -1,9 +1,6 @@
 package com.jbsapp.web.member.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.core.annotation.Order;
 
 import javax.validation.constraints.NotBlank;
@@ -11,6 +8,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
