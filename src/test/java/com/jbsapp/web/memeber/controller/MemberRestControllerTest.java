@@ -93,7 +93,7 @@ public class MemberRestControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
-                .andExpect(jsonPath("$.error.message", is("아이디를 입력해주세요.")))
+                .andExpect(jsonPath("$.error.message", containsString("아이디를 입력해주세요.")))
         ;
     }
 
@@ -116,7 +116,7 @@ public class MemberRestControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
-                .andExpect(jsonPath("$.error.message", is("아이디는 1자 이상 10자 이하입니다.")))
+                .andExpect(jsonPath("$.error.message", containsString("아이디는 1자 이상 10자 이하입니다.")))
         ;
     }
 
@@ -138,7 +138,7 @@ public class MemberRestControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
-                .andExpect(jsonPath("$.error.message", is("비밀번호를 입력해주세요.")))
+                .andExpect(jsonPath("$.error.message", containsString("비밀번호를 입력해주세요.")))
         ;
     }
 
@@ -161,7 +161,7 @@ public class MemberRestControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
-                .andExpect(jsonPath("$.error.message", is("비밀번호는 영문자와 숫자, 특수문자가 적어도 1개 이상 포함된 8자~12자의 비밀번호여야 합니다.")))
+                .andExpect(jsonPath("$.error.message", containsString("비밀번호는 영문자와 숫자, 특수문자가 적어도 1개 이상 포함된 8자~12자의 비밀번호여야 합니다.")))
         ;
     }
 
@@ -184,7 +184,7 @@ public class MemberRestControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
-                .andExpect(jsonPath("$.error.message", is("비밀번호는 영문자와 숫자, 특수문자가 적어도 1개 이상 포함된 8자~12자의 비밀번호여야 합니다.")))
+                .andExpect(jsonPath("$.error.message", containsString("비밀번호는 영문자와 숫자, 특수문자가 적어도 1개 이상 포함된 8자~12자의 비밀번호여야 합니다.")))
         ;
     }
 
