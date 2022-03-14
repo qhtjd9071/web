@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -187,6 +188,26 @@ public class MemberRestControllerTest {
         ;
     }
 
-    // TODO : 다중 에러 순서 해결 필요
+    @Test
+    @DisplayName("회원 가입 실패 - 모든 필드 값 없음")
+    void test07() throws Exception {
+        MemberRequest request = MemberRequest.builder()
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        post("/api/member/join")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", containsString("아이디를 입력해주세요.")))
+                .andExpect(jsonPath("$.error.message", containsString("비밀번호를 입력해주세요.")))
+        ;
+    }
 
 }

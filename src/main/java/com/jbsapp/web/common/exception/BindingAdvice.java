@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @Aspect
 public class BindingAdvice {
@@ -14,9 +17,12 @@ public class BindingAdvice {
 	@Around("execution(* com.jbsapp.web.*.controller.*.*(..)) && args(.., bindingResult)")
 	public Object bindingAdvice(ProceedingJoinPoint joinPoint, BindingResult bindingResult) throws Throwable {
 		if (bindingResult.hasErrors()) {
+			List<String> messages = new ArrayList<>();
 			for (FieldError error : bindingResult.getFieldErrors()) {
-				throw new BindingException(error.getDefaultMessage());
+				messages.add(error.getDefaultMessage());
 			}
+			System.out.println("test ==> " + messages);
+			throw new BindingException(messages.toString());
 		}
 		return joinPoint.proceed();
 	}
