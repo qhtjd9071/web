@@ -54,4 +54,14 @@ public class MemberService {
 
 		return member;
 	}
+
+	public Member find(String username) {
+		Member member = memberRepository.findByUsername(username);
+
+		if (member == null) {
+			throw new WebException("존재하지 않는 회원입니다.");
+		}
+
+		return memberRepository.findByUsername(username);
+	}
 }

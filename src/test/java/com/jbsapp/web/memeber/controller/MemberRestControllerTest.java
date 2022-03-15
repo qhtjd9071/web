@@ -406,4 +406,47 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.error.message", is("존재하지 않는 회원입니다.")))
         ;
     }
+
+    @Test
+    @DisplayName("회원 조회 성공")
+    void test14() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .build());
+
+        mockMvc.perform(
+                        get("/api/member/find/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.id", is(1)))
+                .andExpect(jsonPath("$.response.username", is("test")))
+                .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 조회 실패 - 존재하지 않는 회원")
+    void test15() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test1234")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .build());
+
+        mockMvc.perform(
+                        get("/api/member/find/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("존재하지 않는 회원입니다.")))
+        ;
+    }
 }

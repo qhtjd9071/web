@@ -48,6 +48,16 @@ public class MemberRestController {
 
         return responseOK(member);
     }
+
+    @GetMapping("/find/{id}")
+    public ResponseEntity<?> find(@PathVariable String id) {
+        log.debug("user id : {}", id);
+
+        Member member = memberService.find(id);
+
+        return responseOK(member);
+    }
+
     private ResponseEntity<?> responseOK(Object input) {
         CommonResponse<Object> response = CommonResponse.builder()
                 .status(HttpStatus.OK.value())
