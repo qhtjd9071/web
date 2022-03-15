@@ -2,11 +2,10 @@ package com.jbsapp.web.memeber.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbsapp.web.common.config.RestDocConfig;
-import com.jbsapp.web.member.model.MemberRequest;
+import com.jbsapp.web.member.model.RegisterRequest;
 import com.jbsapp.web.member.repository.MemberRepository;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -61,7 +60,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 성공")
     void test01() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .username("test")
                 .password("test1234!")
                 .build();
@@ -98,7 +97,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 실패 - 아이디 없음")
     void test02() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .password("test1234!")
                 .build();
 
@@ -120,7 +119,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 실패 - 아이디 길이 초과")
     void test03() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .username("test1234567")
                 .password("test1234!")
                 .build();
@@ -143,7 +142,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 실패 - 비밀번호 없음")
     void test04() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .username("test")
                 .build();
 
@@ -165,7 +164,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 실패 - 비밀번호 길이 초과")
     void test05() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .username("test")
                 .password("test123456789")
                 .build();
@@ -188,7 +187,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 실패 - 비밀번호 형식 오류")
     void test06() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .username("test")
                 .password("test12345678")
                 .build();
@@ -211,7 +210,7 @@ public class MemberRestControllerTest {
     @Test
     //@DisplayName("회원 가입 실패 - 모든 필드 값 없음")
     void test07() throws Exception {
-        MemberRequest request = MemberRequest.builder()
+        RegisterRequest request = RegisterRequest.builder()
                 .build();
 
         ObjectMapper mapper = new ObjectMapper();

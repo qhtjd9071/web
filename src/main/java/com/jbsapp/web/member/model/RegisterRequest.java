@@ -1,7 +1,6 @@
 package com.jbsapp.web.member.model;
 
 import lombok.*;
-import org.springframework.core.annotation.Order;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -12,7 +11,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @Builder
 @ToString
-public class MemberRequest {
+public class RegisterRequest {
 
     @NotBlank(message = "아이디를 입력해주세요.")
     @Size(min = 1, max = 10, message = "아이디는 1자 이상 10자 이하입니다.")

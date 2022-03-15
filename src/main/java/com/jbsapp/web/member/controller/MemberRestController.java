@@ -1,16 +1,14 @@
 package com.jbsapp.web.member.controller;
 
 import com.jbsapp.web.common.model.CommonResponse;
-import com.jbsapp.web.common.model.ErrorResponse;
 import com.jbsapp.web.member.domain.Member;
-import com.jbsapp.web.member.model.MemberRequest;
+import com.jbsapp.web.member.model.RegisterRequest;
 import com.jbsapp.web.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +25,7 @@ public class MemberRestController {
     private final MemberService memberService;
 
     @PostMapping("/join")
-    public ResponseEntity<?> join(@Valid @RequestBody MemberRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> join(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
         log.info("request : {}", request);
 
         Member member = memberService.join(request);
