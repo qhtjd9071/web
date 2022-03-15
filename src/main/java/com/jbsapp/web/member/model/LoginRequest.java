@@ -21,7 +21,7 @@ public class LoginRequest {
     private String username;
 
     @NotEmpty(message = "비밀번호를 입력하세요.")
-    @Max(12)
+    @Size(max = 12)
     private String password;
 
 }

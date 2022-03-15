@@ -3,6 +3,7 @@ package com.jbsapp.web.member.controller;
 import com.jbsapp.web.common.model.CommonResponse;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.RegisterRequest;
+import com.jbsapp.web.member.model.UpdateRequest;
 import com.jbsapp.web.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,14 @@ public class MemberRestController {
         return responseOK(ret);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@Valid @RequestBody UpdateRequest request, BindingResult bindingResult) {
+        log.debug("request : {}", request);
+
+        Member member = memberService.update(request);
+
+        return responseOK(member);
+    }
     private ResponseEntity<?> responseOK(Object input) {
         CommonResponse<Object> response = CommonResponse.builder()
                 .status(HttpStatus.OK.value())

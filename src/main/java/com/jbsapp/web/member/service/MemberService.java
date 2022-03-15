@@ -3,6 +3,7 @@ package com.jbsapp.web.member.service;
 import com.jbsapp.web.common.exception.WebException;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.RegisterRequest;
+import com.jbsapp.web.member.model.UpdateRequest;
 import com.jbsapp.web.member.repository.MemberRepository;
 import com.jbsapp.web.security.RoleType;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,20 @@ public class MemberService {
 
 	public boolean isIdDuplicated(String username) {
 		return memberRepository.findByUsername(username) != null;
+	}
+
+	public Member update(UpdateRequest request) {
+		Member member = memberRepository.findById(request.getId())
+				.orElseThrow(() -> new WebException("존재하지 않는 회원입니다."));
+
+		String encodedNew = bCryptPasswordEncoder.encode(request.getNewPassword());
+
+		if (!bCryptPasswordEncoder.matches(request.getPrevPassword(), member.getPassword())) {
+			throw new WebException("비밀번호가 일치하지 않습니다.");
+		}
+
+		member.setPassword(encodedNew);
+
+		return member;
 	}
 }

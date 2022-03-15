@@ -21,7 +21,6 @@ public class BindingAdvice {
 			for (FieldError error : bindingResult.getFieldErrors()) {
 				messages.add(error.getDefaultMessage());
 			}
-			System.out.println("test ==> " + messages);
 			throw new BindingException(messages.toString());
 		}
 		return joinPoint.proceed();

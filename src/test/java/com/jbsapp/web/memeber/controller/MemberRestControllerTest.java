@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbsapp.web.common.config.RestDocConfig;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.RegisterRequest;
+import com.jbsapp.web.member.model.UpdateRequest;
 import com.jbsapp.web.member.repository.MemberRepository;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.AfterEach;
@@ -27,8 +28,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -87,12 +87,14 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.id").type(JsonFieldType.NUMBER).description("식별자"),
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
+                                fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
                                 fieldWithPath("error").description("에러")
                         )))
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.response.id", is(1)))
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
         ;
     }
@@ -236,8 +238,9 @@ public class MemberRestControllerTest {
     @DisplayName("회원 가입 - 아이디 중복")
     void test08() throws Exception {
         memberRepository.save(Member.builder()
+                .id(1L)
                 .username("test")
-                .password("test1234!")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
                 .build());
 
         mockMvc.perform(
@@ -268,8 +271,9 @@ public class MemberRestControllerTest {
     @DisplayName("회원 가입 실패 - 아이디 중복")
     void test10() throws Exception {
         memberRepository.save(Member.builder()
+                .id(1L)
                 .username("test")
-                .password("test1234!")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
                 .build());
 
         RegisterRequest request = RegisterRequest.builder()
@@ -293,4 +297,113 @@ public class MemberRestControllerTest {
         ;
     }
 
+    @Test
+    @DisplayName("회원 수정 성공")
+    void test11() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .build());
+
+        UpdateRequest request = UpdateRequest.builder()
+                .id(1L)
+                .prevPassword("test1234!")
+                .newPassword("test1111!")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        put("/api/member/update")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                        relaxedRequestFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER).description("식별자"),
+                                fieldWithPath("prevPassword").type(JsonFieldType.STRING).description("이전 비밀번호"),
+                                fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새 비밀번호")
+                        ),
+                        responseFields(
+                                fieldWithPath("status").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                fieldWithPath("response.id").type(JsonFieldType.NUMBER).description("식별자"),
+                                fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
+                                fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
+                                fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
+                                fieldWithPath("error").description("에러")
+                        )))
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.id", is(1)))
+                .andExpect(jsonPath("$.response.username", is("test")))
+                .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 수정 실패 - 비밀번호 오류")
+    void test12() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .build());
+
+        UpdateRequest request = UpdateRequest.builder()
+                .id(1L)
+                .prevPassword("test1233!")
+                .newPassword("test1111!")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        put("/api/member/update")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("비밀번호가 일치하지 않습니다.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 수정 실패 - 존재하지 않는 회원")
+    void test13() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .build());
+
+        UpdateRequest request = UpdateRequest.builder()
+                .id(2L)
+                .prevPassword("test1233!")
+                .newPassword("test1111!")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                        put("/api/member/update")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("존재하지 않는 회원입니다.")))
+        ;
+    }
 }
