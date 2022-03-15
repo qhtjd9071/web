@@ -24,12 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.boot.test.mock.mockito.MockReset.after;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -92,6 +88,7 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
                                 fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
+                                fieldWithPath("response.removeYn").type(JsonFieldType.BOOLEAN).description("삭제 여부"),
                                 fieldWithPath("response.createdDate").type(JsonFieldType.STRING).description("생성 날짜"),
                                 fieldWithPath("response.modifiedDate").type(JsonFieldType.STRING).description("수정 날짜"),
                                 fieldWithPath("error").description("에러")
@@ -101,6 +98,7 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.response.removeYn", is(false)))
                 .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
@@ -342,6 +340,7 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
                                 fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
+                                fieldWithPath("response.removeYn").type(JsonFieldType.BOOLEAN).description("삭제 여부"),
                                 fieldWithPath("response.createdDate").type(JsonFieldType.STRING).description("생성 날짜"),
                                 fieldWithPath("response.modifiedDate").type(JsonFieldType.STRING).description("수정 날짜"),
                                 fieldWithPath("error").description("에러")
@@ -351,6 +350,7 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.response.removeYn", is(false)))
                 .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
@@ -459,6 +459,75 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
                 .andExpect(jsonPath("$.error.message", is("존재하지 않는 회원입니다.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 삭제 성공")
+    void test16() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .removeYn(false)
+                .build());
+
+        mockMvc.perform(
+                        delete("/api/member/delete/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.id", is(1)))
+                .andExpect(jsonPath("$.response.username", is("test")))
+                .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.response.removeYn", is(true)))
+                .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 조회 실패 - 존재하지 않는 회원")
+    void test17() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test1234")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .removeYn(false)
+                .build());
+
+        mockMvc.perform(
+                        delete("/api/member/delete/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("존재하지 않는 회원입니다.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 조회 실패 - 삭제된 회원")
+    void test18() throws Exception {
+        memberRepository.save(Member.builder()
+                .id(1L)
+                .username("test")
+                .password(bCryptPasswordEncoder.encode("test1234!"))
+                .roles("ROLE_MEMBER")
+                .removeYn(true)
+                .build());
+
+        mockMvc.perform(
+                        delete("/api/member/delete/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", is("이미 삭제된 회원입니다.")))
         ;
     }
 }

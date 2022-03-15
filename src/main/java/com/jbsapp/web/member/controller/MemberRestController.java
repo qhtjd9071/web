@@ -58,6 +58,15 @@ public class MemberRestController {
         return responseOK(member);
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        log.debug("user id : {}", id);
+
+        Member member = memberService.delete(id);
+
+        return responseOK(member);
+    }
+
     private ResponseEntity<?> responseOK(Object input) {
         CommonResponse<Object> response = CommonResponse.builder()
                 .status(HttpStatus.OK.value())

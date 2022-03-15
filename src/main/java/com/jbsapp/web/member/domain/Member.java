@@ -27,4 +27,7 @@ public class Member extends Time {
   @Column
   private String roles;
 
+  @Column
+  private boolean removeYn;
+
 }

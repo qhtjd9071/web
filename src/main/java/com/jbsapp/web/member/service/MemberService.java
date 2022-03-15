@@ -27,6 +27,7 @@ public class MemberService {
 				.username(request.getUsername())
 				.password(bCryptPasswordEncoder.encode(request.getPassword()))
 				.roles(RoleType.MEMBER.getValue())
+				.removeYn(false)
 				.build();
 
 		if (isIdDuplicated(member.getUsername())) {
@@ -63,5 +64,21 @@ public class MemberService {
 		}
 
 		return memberRepository.findByUsername(username);
+	}
+
+	public Member delete(String username) {
+		Member member = memberRepository.findByUsername(username);
+
+		if (member == null) {
+			throw new WebException("존재하지 않는 회원입니다.");
+		}
+
+		if (member.isRemoveYn()) {
+			throw new WebException("이미 삭제된 회원입니다.");
+		}
+
+		member.setRemoveYn(true);
+
+		return member;
 	}
 }
