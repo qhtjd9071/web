@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -26,11 +23,20 @@ public class MemberRestController {
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
-        log.info("request : {}", request);
+        log.debug("request : {}", request);
 
         Member member = memberService.join(request);
 
         return responseOK(member);
+    }
+
+    @GetMapping("/check/{id}")
+    public ResponseEntity<?> check(@PathVariable String id) {
+        log.debug("user id : {}", id);
+
+        boolean ret = memberService.isIdDuplicated(id);
+
+        return responseOK(ret);
     }
 
     private ResponseEntity<?> responseOK(Object input) {

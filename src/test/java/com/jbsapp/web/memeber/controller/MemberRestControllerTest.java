@@ -2,10 +2,12 @@ package com.jbsapp.web.memeber.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbsapp.web.common.config.RestDocConfig;
+import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.RegisterRequest;
 import com.jbsapp.web.member.repository.MemberRepository;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -25,6 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,7 +61,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 성공")
+    @DisplayName("회원 가입 성공")
     void test01() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .username("test")
@@ -95,7 +98,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 실패 - 아이디 없음")
+    @DisplayName("회원 가입 실패 - 아이디 없음")
     void test02() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .password("test1234!")
@@ -117,7 +120,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 실패 - 아이디 길이 초과")
+    @DisplayName("회원 가입 실패 - 아이디 길이 초과")
     void test03() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .username("test1234567")
@@ -140,7 +143,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 실패 - 비밀번호 없음")
+    @DisplayName("회원 가입 실패 - 비밀번호 없음")
     void test04() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .username("test")
@@ -162,7 +165,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 실패 - 비밀번호 길이 초과")
+    @DisplayName("회원 가입 실패 - 비밀번호 길이 초과")
     void test05() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .username("test")
@@ -185,7 +188,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 실패 - 비밀번호 형식 오류")
+    @DisplayName("회원 가입 실패 - 비밀번호 형식 오류")
     void test06() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .username("test")
@@ -208,7 +211,7 @@ public class MemberRestControllerTest {
     }
 
     @Test
-    //@DisplayName("회원 가입 실패 - 모든 필드 값 없음")
+    @DisplayName("회원 가입 실패 - 모든 필드 값 없음")
     void test07() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
                 .build();
@@ -226,6 +229,67 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
                 .andExpect(jsonPath("$.error.message", containsString("아이디를 입력해주세요.")))
                 .andExpect(jsonPath("$.error.message", containsString("비밀번호를 입력해주세요.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 아이디 중복")
+    void test08() throws Exception {
+        memberRepository.save(Member.builder()
+                .username("test")
+                .password("test1234!")
+                .build());
+
+        mockMvc.perform(
+                        get("/api/member/check/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response", is(true)))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 아이디 중복x")
+    void test09() throws Exception {
+
+        mockMvc.perform(
+                        get("/api/member/check/test")
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response", is(false)))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("회원 가입 실패 - 아이디 중복")
+    void test10() throws Exception {
+        memberRepository.save(Member.builder()
+                .username("test")
+                .password("test1234!")
+                .build());
+
+        RegisterRequest request = RegisterRequest.builder()
+                .username("test")
+                .password("test1234!")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        mockMvc.perform(
+                post("/api/member/join")
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON)
+
+        )
+        .andDo(print())
+        .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+        .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+        .andExpect(jsonPath("$.error.message", containsString("이미 존재하는 아이디입니다.")))
         ;
     }
 
