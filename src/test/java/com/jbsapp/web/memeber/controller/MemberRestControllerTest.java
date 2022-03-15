@@ -24,8 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.boot.test.mock.mockito.MockReset.after;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -88,6 +92,8 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
                                 fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
+                                fieldWithPath("response.createdDate").type(JsonFieldType.STRING).description("생성 날짜"),
+                                fieldWithPath("response.modifiedDate").type(JsonFieldType.STRING).description("수정 날짜"),
                                 fieldWithPath("error").description("에러")
                         )))
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
@@ -95,6 +101,8 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
         ;
     }
@@ -334,6 +342,8 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
                                 fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
+                                fieldWithPath("response.createdDate").type(JsonFieldType.STRING).description("생성 날짜"),
+                                fieldWithPath("response.modifiedDate").type(JsonFieldType.STRING).description("수정 날짜"),
                                 fieldWithPath("error").description("에러")
                         )))
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
@@ -341,6 +351,8 @@ public class MemberRestControllerTest {
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
         ;
     }

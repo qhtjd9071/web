@@ -1,5 +1,6 @@
 package com.jbsapp.web.member.domain;
 
+import com.jbsapp.web.common.domain.Time;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Builder
 @ToString
 @Entity
-public class Member {
+public class Member extends Time {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
