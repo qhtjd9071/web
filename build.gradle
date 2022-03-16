@@ -58,6 +58,7 @@ dependencies {
             "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
 
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.18.3'
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
 }
 
 sourceSets {
