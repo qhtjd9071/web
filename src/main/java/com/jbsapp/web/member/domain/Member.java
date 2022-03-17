@@ -25,6 +25,18 @@ public class Member extends Time {
   private String password;
 
   @Column
+  private String name;
+
+  @Column
+  private String email;
+
+  @Column
+  private String provider;
+
+  @Column
+  private String providerId;
+
+  @Column
   private String roles;
 
   @Column

@@ -4,22 +4,34 @@ import com.jbsapp.web.member.domain.Member;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private final Member member;
 
     Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+    private Map<String, Object> attributes;
 
     public CustomUserDetails(Member member) {
         this.member = member;
 
         String[] roles = member.getRoles().split(",");
         Arrays.stream(roles).forEach(role -> this.authorities.add(new SimpleGrantedAuthority(role)));
+    }
+
+    public CustomUserDetails(Member member, Map<String, Object> attributes) {
+        this.member = member;
+
+        String[] roles = member.getRoles().split(",");
+        Arrays.stream(roles).forEach(role -> this.authorities.add(new SimpleGrantedAuthority(role)));
+        this.attributes = attributes;
     }
 
     public Member getMember() {
@@ -62,4 +74,14 @@ public class CustomUserDetails implements UserDetails {
         return this.authorities;
     }
 
+    @Override
+    public Map<String, Object> getAttributes() {
+        return this.attributes;
+    }
+
+    // TODO : 필요성 체크
+    @Override
+    public String getName() {
+        return null;
+    }
 }

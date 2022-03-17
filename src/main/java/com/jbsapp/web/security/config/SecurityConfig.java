@@ -3,6 +3,7 @@ package com.jbsapp.web.security.config;
 import com.jbsapp.web.member.repository.MemberRepository;
 import com.jbsapp.web.security.jwt.JwtAuthenticationFilter;
 import com.jbsapp.web.security.jwt.JwtAuthorizationFilter;
+import com.jbsapp.web.security.oauth2.CustomOuath2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 @RequiredArgsConstructor
 @Configuration
@@ -28,8 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .formLogin().disable()
-                .httpBasic().disable()
 
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager()))
@@ -45,11 +43,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .hasRole("MEMBER")
                 .antMatchers("/**")
                 .permitAll()
-                .anyRequest().permitAll();
+                .anyRequest().permitAll()
+                .and()
+
+                .formLogin().disable()
+                .httpBasic().disable()
+                .oauth2Login()
+                .userInfoEndpoint()
+                .userService(principalOuath2UserService())
+                ;
     }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CustomOuath2UserService principalOuath2UserService() {
+        return new CustomOuath2UserService(bCryptPasswordEncoder(), memberRepository);
     }
 }
