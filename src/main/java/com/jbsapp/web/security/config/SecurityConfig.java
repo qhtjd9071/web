@@ -3,7 +3,7 @@ package com.jbsapp.web.security.config;
 import com.jbsapp.web.member.repository.MemberRepository;
 import com.jbsapp.web.security.jwt.JwtAuthenticationFilter;
 import com.jbsapp.web.security.jwt.JwtAuthorizationFilter;
-import com.jbsapp.web.security.oauth2.CustomOuath2UserService;
+import com.jbsapp.web.security.oauth2.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public CustomOuath2UserService principalOuath2UserService() {
-        return new CustomOuath2UserService(bCryptPasswordEncoder(), memberRepository);
+    public CustomOAuth2UserService principalOuath2UserService() {
+        return new CustomOAuth2UserService(bCryptPasswordEncoder(), memberRepository);
     }
 }
