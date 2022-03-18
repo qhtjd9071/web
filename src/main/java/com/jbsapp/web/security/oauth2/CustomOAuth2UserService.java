@@ -35,7 +35,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        OAuth2UserInfo oAuth2UserInfo = OAuth2ProviderFactory.getOAuth2MemberInfo(oAuth2User, provider);
+        OAuth2UserInfo oAuth2UserInfo = OAuth2ProviderFactory.getOAuth2UserInfo(oAuth2User, provider);
 
         String providerId = oAuth2UserInfo.getProviderId();
         String username = provider + "_" + providerId;
@@ -57,7 +57,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             memberRepository.save(member);
         }
 
-        System.out.println("member : " + member);
         return new CustomUserDetails(member, oAuth2User.getAttributes());
     }
 }

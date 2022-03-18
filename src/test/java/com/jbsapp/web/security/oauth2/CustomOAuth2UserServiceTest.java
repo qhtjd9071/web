@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -22,7 +21,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -46,21 +47,7 @@ public class CustomOAuth2UserServiceTest {
     @DisplayName("OAuth 2.0 테스트 - google")
     public void test01() {
         // given
-        ClientRegistration mockClientRegistration = ClientRegistration.withRegistrationId("google")
-                .clientId("required")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("required")
-                .authorizationUri("required")
-                .tokenUri("required")
-                .build();
-
-        OAuth2AccessToken mockAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                "required",
-                Instant.now(),
-                Instant.now().plusSeconds(1),
-                new HashSet<>());
-
-        OAuth2UserRequest mockUserRequest = new OAuth2UserRequest(mockClientRegistration, mockAccessToken, new HashMap<>());
+        OAuth2UserRequest mockUserRequest = getMockUserRequest("google");
 
         Map<String, Object> mockAttributes = new HashMap<>();
         mockAttributes.put("sub", "1234");
@@ -88,21 +75,7 @@ public class CustomOAuth2UserServiceTest {
     @DisplayName("OAuth 2.0 테스트 - naver")
     public void test02() {
         // given
-        ClientRegistration mockClientRegistration = ClientRegistration.withRegistrationId("naver")
-                .clientId("required")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("required")
-                .authorizationUri("required")
-                .tokenUri("required")
-                .build();
-
-        OAuth2AccessToken mockAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                "required",
-                Instant.now(),
-                Instant.now().plusSeconds(1),
-                new HashSet<>());
-
-        OAuth2UserRequest mockUserRequest = new OAuth2UserRequest(mockClientRegistration, mockAccessToken, new HashMap<>());
+        OAuth2UserRequest mockUserRequest = getMockUserRequest("naver");
 
         Map<String, Object> mockAttributes = new HashMap<>();
         mockAttributes.put("resultcode", "00");
@@ -135,21 +108,7 @@ public class CustomOAuth2UserServiceTest {
     @DisplayName("OAuth 2.0 테스트 - kakao")
     public void test03() {
         // given
-        ClientRegistration mockClientRegistration = ClientRegistration.withRegistrationId("kakao")
-                .clientId("required")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("required")
-                .authorizationUri("required")
-                .tokenUri("required")
-                .build();
-
-        OAuth2AccessToken mockAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                "required",
-                Instant.now(),
-                Instant.now().plusSeconds(1),
-                new HashSet<>());
-
-        OAuth2UserRequest mockUserRequest = new OAuth2UserRequest(mockClientRegistration, mockAccessToken, new HashMap<>());
+        OAuth2UserRequest mockUserRequest = getMockUserRequest("kakao");
 
         Map<String, Object> mockAttributes = new HashMap<>();
         mockAttributes.put("id", "1234");
@@ -177,5 +136,31 @@ public class CustomOAuth2UserServiceTest {
         assertThat(member.getProvider(), is("kakao"));
         assertThat(member.getProviderId(), is("1234"));
         assertThat(member.getRoles(), is("ROLE_MEMBER"));
+    }
+
+    private OAuth2UserRequest getMockUserRequest(String provider) {
+        ClientRegistration mockClientRegistration = getMockClientRegistration(provider);
+
+        OAuth2AccessToken mockAccessToken = getMockAccessToken();
+
+        return new OAuth2UserRequest(mockClientRegistration, mockAccessToken, new HashMap<>());
+    }
+
+    private ClientRegistration getMockClientRegistration(String provider) {
+        return ClientRegistration.withRegistrationId(provider)
+                .clientId("required")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("required")
+                .authorizationUri("required")
+                .tokenUri("required")
+                .build();
+    }
+
+    private OAuth2AccessToken getMockAccessToken() {
+        return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                "required",
+                Instant.now(),
+                Instant.now().plusSeconds(1),
+                new HashSet<>());
     }
 }
