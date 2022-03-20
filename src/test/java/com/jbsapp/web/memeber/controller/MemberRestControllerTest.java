@@ -66,6 +66,8 @@ public class MemberRestControllerTest {
         RegisterRequest request = RegisterRequest.builder()
                 .username("test")
                 .password("test1234!")
+                .name("테스트")
+                .email("test1234@test.com")
                 .build();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -87,16 +89,22 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.id").type(JsonFieldType.NUMBER).description("식별자"),
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
+                                fieldWithPath("response.name").type(JsonFieldType.STRING).description("이름"),
+                                fieldWithPath("response.email").type(JsonFieldType.STRING).description("이메일"),
                                 fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
                                 fieldWithPath("response.removeYn").type(JsonFieldType.BOOLEAN).description("삭제 여부"),
                                 fieldWithPath("response.createdDate").type(JsonFieldType.STRING).description("생성 날짜"),
                                 fieldWithPath("response.modifiedDate").type(JsonFieldType.STRING).description("수정 날짜"),
+                                fieldWithPath("response.provider").type(JsonFieldType.NULL).description("OAuth 2.0 공급자"),
+                                fieldWithPath("response.providerId").type(JsonFieldType.NULL).description("OAuth 2.0 공급자 아이디"),
                                 fieldWithPath("error").description("에러")
                         )))
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.response.id", is(1)))
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.name", is("테스트")))
+                .andExpect(jsonPath("$.response.email", is("test1234@test.com")))
                 .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
                 .andExpect(jsonPath("$.response.removeYn", is(false)))
                 .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
@@ -247,6 +255,8 @@ public class MemberRestControllerTest {
                 .id(1L)
                 .username("test")
                 .password(bCryptPasswordEncoder.encode("test1234!"))
+                .name("테스트")
+                .email("test1234@test.com")
                 .build());
 
         mockMvc.perform(
@@ -280,11 +290,15 @@ public class MemberRestControllerTest {
                 .id(1L)
                 .username("test")
                 .password(bCryptPasswordEncoder.encode("test1234!"))
+                .name("테스트")
+                .email("test1234@test.com")
                 .build());
 
         RegisterRequest request = RegisterRequest.builder()
                 .username("test")
                 .password("test1234!")
+                .name("테스트")
+                .email("test1234@test.com")
                 .build();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -310,6 +324,8 @@ public class MemberRestControllerTest {
                 .id(1L)
                 .username("test")
                 .password(bCryptPasswordEncoder.encode("test1234!"))
+                .name("테스트")
+                .email("test1234@test.com")
                 .roles("ROLE_MEMBER")
                 .build());
 
@@ -339,16 +355,22 @@ public class MemberRestControllerTest {
                                 fieldWithPath("response.id").type(JsonFieldType.NUMBER).description("식별자"),
                                 fieldWithPath("response.username").type(JsonFieldType.STRING).description("아이디"),
                                 fieldWithPath("response.password").type(JsonFieldType.STRING).description("비밀번호"),
+                                fieldWithPath("response.name").type(JsonFieldType.STRING).description("이름"),
+                                fieldWithPath("response.email").type(JsonFieldType.STRING).description("이메일"),
                                 fieldWithPath("response.roles").type(JsonFieldType.STRING).description("권한"),
                                 fieldWithPath("response.removeYn").type(JsonFieldType.BOOLEAN).description("삭제 여부"),
                                 fieldWithPath("response.createdDate").type(JsonFieldType.STRING).description("생성 날짜"),
                                 fieldWithPath("response.modifiedDate").type(JsonFieldType.STRING).description("수정 날짜"),
+                                fieldWithPath("response.provider").type(JsonFieldType.NULL).description("OAuth 2.0 공급자"),
+                                fieldWithPath("response.providerId").type(JsonFieldType.NULL).description("OAuth 2.0 공급자 아이디"),
                                 fieldWithPath("error").description("에러")
                         )))
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.response.id", is(1)))
                 .andExpect(jsonPath("$.response.username", is("test")))
                 .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.name", is("테스트")))
+                .andExpect(jsonPath("$.response.email", is("test1234@test.com")))
                 .andExpect(jsonPath("$.response.roles", is("ROLE_MEMBER")))
                 .andExpect(jsonPath("$.response.removeYn", is(false)))
                 .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))

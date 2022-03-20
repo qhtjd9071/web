@@ -26,6 +26,8 @@ public class MemberService {
 		Member member = Member.builder()
 				.username(request.getUsername())
 				.password(bCryptPasswordEncoder.encode(request.getPassword()))
+				.name(request.getName())
+				.email(request.getEmail())
 				.roles(RoleType.MEMBER.getValue())
 				.removeYn(false)
 				.build();
