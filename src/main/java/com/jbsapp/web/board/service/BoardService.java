@@ -2,6 +2,7 @@ package com.jbsapp.web.board.service;
 
 import com.jbsapp.web.board.domain.Board;
 import com.jbsapp.web.board.model.BoardRequest;
+import com.jbsapp.web.board.model.DeleteRequest;
 import com.jbsapp.web.board.repository.BoardRepository;
 import com.jbsapp.web.common.exception.WebException;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,11 @@ public class BoardService {
             throw new WebException("작성자만 수정 가능합니다.");
         }
 
+        System.out.println("==========================" + bCryptPasswordEncoder.matches(request.getPassword(), board.getPassword()));
+        if (!bCryptPasswordEncoder.matches(request.getPassword(), board.getPassword())) {
+            throw new WebException("비밀번호가 일치하지 않습니다.");
+        }
+
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
         board.setPassword(request.getPassword());
@@ -57,16 +63,20 @@ public class BoardService {
     }
 
     @Transactional
-    public Board delete(String username, Long id) {
+    public Board delete(DeleteRequest request, String username, Long id) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new WebException("해당 게시글이 존재하지 않습니다."));
 
-        if (board.isRemoveYn()) {
-            throw new WebException("이미 삭제된 게시글입니다.");
-        }
-
         if (!username.equals(board.getWriter())) {
             throw new WebException("작성자만 삭제 가능합니다.");
+        }
+
+        if (!bCryptPasswordEncoder.matches(request.getPassword(), board.getPassword())) {
+            throw new WebException("비밀번호가 일치하지 않습니다.");
+        }
+
+        if (board.isRemoveYn()) {
+            throw new WebException("이미 삭제된 게시글입니다.");
         }
 
         board.setRemoveYn(true);

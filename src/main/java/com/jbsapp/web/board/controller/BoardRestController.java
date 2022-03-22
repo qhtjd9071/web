@@ -2,6 +2,7 @@ package com.jbsapp.web.board.controller;
 
 import com.jbsapp.web.board.domain.Board;
 import com.jbsapp.web.board.model.BoardRequest;
+import com.jbsapp.web.board.model.DeleteRequest;
 import com.jbsapp.web.board.service.BoardService;
 import com.jbsapp.web.common.model.CommonResponse;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,12 @@ public class BoardRestController {
     @PutMapping("/board/{id}")
     public ResponseEntity<?> update(Authentication authentication, @Valid @RequestBody BoardRequest request, BindingResult bindingResult, @PathVariable Long id) {
 
-        String username = authentication.getName();
+        String username;
+        if (authentication == null) {
+            username = "anonymous";
+        } else {
+            username = authentication.getName();
+        }
 
         Board board = boardService.update(request, username, id);
 
@@ -65,11 +71,16 @@ public class BoardRestController {
     }
 
     @DeleteMapping("/board/{id}")
-    public ResponseEntity<?> delete(Authentication authentication, @PathVariable Long id) {
+    public ResponseEntity<?> delete(Authentication authentication, @Valid @RequestBody DeleteRequest request, BindingResult bindingResult, @PathVariable Long id) {
 
-        String username = authentication.getName();
+        String username;
+        if (authentication == null) {
+            username = "anonymous";
+        } else {
+            username = authentication.getName();
+        }
 
-        Board board = boardService.delete(username, id);
+        Board board = boardService.delete(request, username, id);
 
         return responseOK(board);
     }
