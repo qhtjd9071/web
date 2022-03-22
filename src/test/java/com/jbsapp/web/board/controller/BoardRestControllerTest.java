@@ -261,4 +261,31 @@ public class BoardRestControllerTest {
         ;
     }
 
+    @Test
+    @DisplayName("게시글 등록 성공 - 익명 유저")
+    void test09() throws Exception {
+        BoardRequest request = BoardRequest.builder()
+                .title("제목")
+                .content("내용")
+                .password("123456")
+                .build();
+
+        mockMvc.perform(
+                        post("/api/board")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.id", is(1)))
+                .andExpect(jsonPath("$.response.title", is("제목")))
+                .andExpect(jsonPath("$.response.content", is("내용")))
+                .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.writer", is("anonymous")))
+                .andExpect(jsonPath("$.response.removeYn", is(false)))
+                .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
 }

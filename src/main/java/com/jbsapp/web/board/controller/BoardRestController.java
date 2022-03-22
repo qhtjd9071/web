@@ -41,7 +41,13 @@ public class BoardRestController {
 
     @PostMapping("/board")
     public ResponseEntity<?> create(Authentication authentication, @Valid @RequestBody BoardRequest request, BindingResult bindingResult) {
-        String username = authentication.getName();
+
+        String username;
+        if (authentication == null) {
+            username = "anonymous";
+        } else {
+            username = authentication.getName();
+        }
 
         Board board = boardService.create(request, username);
 
