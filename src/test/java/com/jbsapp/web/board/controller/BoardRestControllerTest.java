@@ -418,8 +418,41 @@ public class BoardRestControllerTest {
     }
 
     @Test
-    @DisplayName("게시글 수정 성공 - 익명 유저")
+    @DisplayName("게시글 수정 실패 - 비밀번호가 다름")
+    @WithMockUser(username = "test", roles = "MEMBER")
     void test13() throws Exception {
+        Board board = Board.builder()
+                .id(1)
+                .title("제목")
+                .content("내용")
+                .password(bCryptPasswordEncoder.encode("123456"))
+                .writer("test")
+                .removeYn(false)
+                .build();
+
+        boardRepository.save(board);
+
+        BoardRequest request = BoardRequest.builder()
+                .title("제목2")
+                .content("내용2")
+                .password("111111")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/board/1")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", containsString("비밀번호가 일치하지 않습니다.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("게시글 수정 성공 - 익명 유저")
+    void test14() throws Exception {
         Board board = Board.builder()
                 .id(1)
                 .title("제목")
@@ -459,7 +492,7 @@ public class BoardRestControllerTest {
     @Test
     @DisplayName("게시글 삭제 성공")
     @WithMockUser(username = "test", roles = "MEMBER")
-    void test14() throws Exception {
+    void test15() throws Exception {
         Board board = Board.builder()
                 .id(1)
                 .title("제목")
@@ -516,7 +549,7 @@ public class BoardRestControllerTest {
     @Test
     @DisplayName("게시글 수정 실패 - 게시글 없음")
     @WithMockUser(username = "test", roles = "MEMBER")
-    void test15() throws Exception {
+    void test16() throws Exception {
         Board board = Board.builder()
                 .id(1)
                 .title("제목")
@@ -547,7 +580,7 @@ public class BoardRestControllerTest {
     @Test
     @DisplayName("게시글 삭제 실패 - 작성자와 수정자가 다름")
     @WithMockUser(username = "test2", roles = "MEMBER")
-    void test16() throws Exception {
+    void test17() throws Exception {
         Board board = Board.builder()
                 .id(1)
                 .title("제목")
@@ -576,8 +609,39 @@ public class BoardRestControllerTest {
     }
 
     @Test
+    @DisplayName("게시글 삭제 실패 - 비밀번호가 다름")
+    @WithMockUser(username = "test", roles = "MEMBER")
+    void test18() throws Exception {
+        Board board = Board.builder()
+                .id(1)
+                .title("제목")
+                .content("내용")
+                .password(bCryptPasswordEncoder.encode("123456"))
+                .writer("test")
+                .removeYn(false)
+                .build();
+
+        boardRepository.save(board);
+
+        DeleteRequest request = DeleteRequest.builder()
+                .password("111111")
+                .build();
+
+        mockMvc.perform(
+                        delete("/api/board/1")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", containsString("비밀번호가 일치하지 않습니다.")))
+        ;
+    }
+
+    @Test
     @DisplayName("게시글 삭제 성공 - 익명 유저")
-    void test17() throws Exception {
+    void test19() throws Exception {
         Board board = Board.builder()
                 .id(1)
                 .title("제목")
@@ -611,4 +675,159 @@ public class BoardRestControllerTest {
                 .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
         ;
     }
+
+    @Test
+    @DisplayName("게시글 조회 성공 - 하나 조회")
+    void test20() throws Exception {
+        Board board = Board.builder()
+                .id(1)
+                .title("제목")
+                .content("내용")
+                .password(bCryptPasswordEncoder.encode("123456"))
+                .writer("test")
+                .removeYn(false)
+                .build();
+
+        boardRepository.save(board);
+
+        mockMvc.perform(
+                        get("/api/board/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.id", is(1)))
+                .andExpect(jsonPath("$.response.title", is("제목")))
+                .andExpect(jsonPath("$.response.content", is("내용")))
+                .andExpect(jsonPath("$.response.password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.writer", is("test")))
+                .andExpect(jsonPath("$.response.removeYn", is(false)))
+                .andExpect(jsonPath("$.response.createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.modifiedDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("게시글 조회 실패 - 하나 조회")
+    void test21() throws Exception {
+        Board board = Board.builder()
+                .id(1)
+                .title("제목")
+                .content("내용")
+                .password(bCryptPasswordEncoder.encode("123456"))
+                .writer("test")
+                .removeYn(false)
+                .build();
+
+        boardRepository.save(board);
+
+        mockMvc.perform(
+                        get("/api/board/2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error.message", containsString("해당 게시글이 존재하지 않습니다.")))
+        ;
+    }
+
+
+    @Test
+    @DisplayName("게시글 조회 성공 - 여러개 조회 - 기본")
+    void test22() throws Exception {
+        for (int i = 1; i <= 2; i++) {
+            Board board = Board.builder()
+                    .id(i)
+                    .title("제목" + i)
+                    .content("내용")
+                    .password(bCryptPasswordEncoder.encode("123456"))
+                    .writer("test")
+                    .removeYn(false)
+                    .build();
+
+            boardRepository.save(board);
+        }
+
+        mockMvc.perform(
+                        get("/api/board")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.content[0].id", is(1)))
+                .andExpect(jsonPath("$.response.content[0].title", is("제목1")))
+                .andExpect(jsonPath("$.response.content[0].content", is("내용")))
+                .andExpect(jsonPath("$.response.content[0].password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.content[0].writer", is("test")))
+                .andExpect(jsonPath("$.response.content[0].removeYn", is(false)))
+                .andExpect(jsonPath("$.response.content[0].createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.content[0].modifiedDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.content[1].id", is(2)))
+                .andExpect(jsonPath("$.response.content[1].title", is("제목2")))
+                .andExpect(jsonPath("$.response.content[1].content", is("내용")))
+                .andExpect(jsonPath("$.response.content[1].password", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.content[1].writer", is("test")))
+                .andExpect(jsonPath("$.response.content[1].removeYn", is(false)))
+                .andExpect(jsonPath("$.response.content[1].createdDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.response.content[1].modifiedDate", is(IsNull.notNullValue())))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("게시글 조회 성공 - 여러개 조회 - 페이징 비정렬")
+    void test23() throws Exception {
+        for (int i = 1; i <= 3; i++) {
+            Board board = Board.builder()
+                    .id(i)
+                    .title("제목")
+                    .content("내용")
+                    .password(bCryptPasswordEncoder.encode("123456"))
+                    .writer("test")
+                    .removeYn(false)
+                    .build();
+
+            boardRepository.save(board);
+        }
+
+        mockMvc.perform(
+                        get("/api/board?page=1&size=2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.content[0].id", is(3)))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
+    @Test
+    @DisplayName("게시글 조회 성공 - 여러개 조회 - 페이징 정렬")
+    void test24() throws Exception {
+        for (int i = 1; i <= 3; i++) {
+            Board board = Board.builder()
+                    .id(i)
+                    .title("제목")
+                    .content("내용")
+                    .password(bCryptPasswordEncoder.encode("123456"))
+                    .writer("test")
+                    .removeYn(false)
+                    .build();
+
+            boardRepository.save(board);
+        }
+
+        mockMvc.perform(
+                        get("/api/board?page=1&size=2&sort=id,desc")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.response.content[0].id", is(1)))
+                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+        ;
+    }
+
 }

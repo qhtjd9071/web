@@ -6,6 +6,8 @@ import com.jbsapp.web.board.model.DeleteRequest;
 import com.jbsapp.web.board.repository.BoardRepository;
 import com.jbsapp.web.common.exception.WebException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +22,8 @@ public class BoardService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public List<Board> findAll() {
-        return boardRepository.findAll();
+    public Page<Board> findAll(Pageable pageable) {
+        return boardRepository.findAll(pageable);
     }
 
     public Board findOne(Long id) {

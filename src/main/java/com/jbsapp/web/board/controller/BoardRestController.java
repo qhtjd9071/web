@@ -7,6 +7,8 @@ import com.jbsapp.web.board.service.BoardService;
 import com.jbsapp.web.common.model.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,9 +27,9 @@ public class BoardRestController {
   private final BoardService boardService;
 
     @GetMapping("/board")
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<?> findAll(Pageable pageable) {
 
-        List<Board> boards = boardService.findAll();
+        Page<Board> boards = boardService.findAll(pageable);
 
         return responseOK(boards);
     }
