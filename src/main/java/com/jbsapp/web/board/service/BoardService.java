@@ -1,0 +1,76 @@
+package com.jbsapp.web.board.service;
+
+import com.jbsapp.web.board.domain.Board;
+import com.jbsapp.web.board.model.BoardRequest;
+import com.jbsapp.web.board.repository.BoardRepository;
+import com.jbsapp.web.common.exception.WebException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+@Service
+public class BoardService {
+
+    private final BoardRepository boardRepository;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public List<Board> findAll() {
+        return boardRepository.findAll();
+    }
+
+    public Board findOne(Long id) {
+        return boardRepository.findById(id)
+                .orElseThrow(() -> new WebException("해당 게시글이 존재하지 않습니다."));
+    }
+
+    public Board create(BoardRequest request, String username) {
+        Board board = Board.builder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                .writer(username)
+                .removeYn(false)
+                .build();
+
+        return boardRepository.save(board);
+    }
+
+    @Transactional
+    public Board update(BoardRequest request, String username, Long id) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new WebException("해당 게시글이 존재하지 않습니다."));
+
+        if (!username.equals(board.getWriter())) {
+            throw new WebException("작성자만 수정 가능합니다.");
+        }
+
+        board.setTitle(request.getTitle());
+        board.setContent(request.getContent());
+        board.setPassword(request.getPassword());
+
+        return board;
+    }
+
+    @Transactional
+    public Board delete(String username, Long id) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new WebException("해당 게시글이 존재하지 않습니다."));
+
+        if (board.isRemoveYn()) {
+            throw new WebException("이미 삭제된 게시글입니다.");
+        }
+
+        if (!username.equals(board.getWriter())) {
+            throw new WebException("작성자만 삭제 가능합니다.");
+        }
+
+        board.setRemoveYn(true);
+
+        return board;
+    }
+}
