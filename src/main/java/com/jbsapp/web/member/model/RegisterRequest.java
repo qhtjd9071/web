@@ -22,4 +22,11 @@ public class RegisterRequest {
             message = "비밀번호는 영문자와 숫자, 특수문자가 적어도 1개 이상 포함된 8자~12자의 비밀번호여야 합니다.")
     private String password;
 
+    @NotBlank(message = "이름을 입력해주세요.")
+    private String name;
+
+    @NotBlank(message = "이메일을 입력해주세요.")
+    @Pattern(regexp="^[A-Za-z0-9+_.-]+@(.+)$",
+            message = "이메일 형식에 맞지 않습니다.")
+    private String email;
 }
