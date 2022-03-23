@@ -14,8 +14,6 @@ import javax.validation.constraints.Size;
 @ToString
 public class UpdateRequest {
 
-    private long id;
-
     @NotBlank(message = "비밀번호를 입력해주세요.")
     @Size(max = 12)
     private String prevPassword;

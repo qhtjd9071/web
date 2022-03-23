@@ -22,7 +22,7 @@ public class MemberRestController {
 
     private final MemberService memberService;
 
-    @PostMapping("/join")
+    @PostMapping("")
     public ResponseEntity<?> join(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
         log.debug("request : {}", request);
 
@@ -40,16 +40,16 @@ public class MemberRestController {
         return responseOK(ret);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> update(@Valid @RequestBody UpdateRequest request, BindingResult bindingResult) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody UpdateRequest request, BindingResult bindingResult, @PathVariable Long id) {
         log.debug("request : {}", request);
 
-        Member member = memberService.update(request);
+        Member member = memberService.update(request, id);
 
         return responseOK(member);
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> find(@PathVariable String id) {
         log.debug("user id : {}", id);
 
@@ -58,7 +58,7 @@ public class MemberRestController {
         return responseOK(member);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         log.debug("user id : {}", id);
 

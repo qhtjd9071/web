@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +29,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -74,7 +77,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -124,7 +127,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -147,7 +150,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -169,7 +172,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -192,7 +195,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -215,7 +218,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -236,7 +239,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        post("/api/member/join")
+                        post("/api/member")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -305,7 +308,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                post("/api/member/join")
+                post("/api/member")
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON)
 
@@ -330,7 +333,6 @@ public class MemberRestControllerTest {
                 .build());
 
         UpdateRequest request = UpdateRequest.builder()
-                .id(1L)
                 .prevPassword("test1234!")
                 .newPassword("test1111!")
                 .build();
@@ -339,14 +341,16 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        put("/api/member/update")
+                        RestDocumentationRequestBuilders.put("/api/member/{id}", 1L)
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andDo(document("{class-name}/{method-name}",
+                        pathParameters(
+                                parameterWithName("id").description("식별자")
+                        ),
                         relaxedRequestFields(
-                                fieldWithPath("id").type(JsonFieldType.NUMBER).description("식별자"),
                                 fieldWithPath("prevPassword").type(JsonFieldType.STRING).description("이전 비밀번호"),
                                 fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새 비밀번호")
                         ),
@@ -390,7 +394,6 @@ public class MemberRestControllerTest {
                 .build());
 
         UpdateRequest request = UpdateRequest.builder()
-                .id(1L)
                 .prevPassword("test1233!")
                 .newPassword("test1111!")
                 .build();
@@ -399,7 +402,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        put("/api/member/update")
+                        put("/api/member/1")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -421,7 +424,6 @@ public class MemberRestControllerTest {
                 .build());
 
         UpdateRequest request = UpdateRequest.builder()
-                .id(2L)
                 .prevPassword("test1233!")
                 .newPassword("test1111!")
                 .build();
@@ -430,7 +432,7 @@ public class MemberRestControllerTest {
         String json = mapper.writeValueAsString(request);
 
         mockMvc.perform(
-                        put("/api/member/update")
+                        put("/api/member/2")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -452,7 +454,7 @@ public class MemberRestControllerTest {
                 .build());
 
         mockMvc.perform(
-                        get("/api/member/find/test")
+                        get("/api/member/test")
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
@@ -475,7 +477,7 @@ public class MemberRestControllerTest {
                 .build());
 
         mockMvc.perform(
-                        get("/api/member/find/test")
+                        get("/api/member/test")
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
@@ -496,7 +498,7 @@ public class MemberRestControllerTest {
                 .build());
 
         mockMvc.perform(
-                        delete("/api/member/delete/test")
+                        delete("/api/member/test")
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
@@ -523,7 +525,7 @@ public class MemberRestControllerTest {
                 .build());
 
         mockMvc.perform(
-                        delete("/api/member/delete/test")
+                        delete("/api/member/test")
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
@@ -544,7 +546,7 @@ public class MemberRestControllerTest {
                 .build());
 
         mockMvc.perform(
-                        delete("/api/member/delete/test")
+                        delete("/api/member/test")
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))

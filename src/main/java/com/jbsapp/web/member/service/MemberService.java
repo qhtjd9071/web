@@ -43,8 +43,8 @@ public class MemberService {
 		return memberRepository.findByUsername(username) != null;
 	}
 
-	public Member update(UpdateRequest request) {
-		Member member = memberRepository.findById(request.getId())
+	public Member update(UpdateRequest request, Long id) {
+		Member member = memberRepository.findById(id)
 				.orElseThrow(() -> new WebException("존재하지 않는 회원입니다."));
 
 		String encodedNew = bCryptPasswordEncoder.encode(request.getNewPassword());
