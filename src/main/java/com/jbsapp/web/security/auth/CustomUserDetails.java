@@ -51,6 +51,9 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     @Override
     public boolean isAccountNonExpired() {
+        if (member.getLastLoginDate() == null) {
+            return true;
+        }
         LocalDateTime current = LocalDateTime.now();
         return !current.minusYears(1).isAfter(member.getLastLoginDate());
     }
