@@ -16,17 +16,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/board")
 public class BoardRestController {
 
   private final BoardService boardService;
 
-    @GetMapping("/board")
+    @GetMapping("")
     public ResponseEntity<?> findAll(Pageable pageable) {
 
         Page<Board> boards = boardService.findAll(pageable);
@@ -34,7 +33,7 @@ public class BoardRestController {
         return responseOK(boards);
     }
 
-    @GetMapping("/board/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> findOne(@PathVariable Long id) {
 
         Board board = boardService.findOne(id);
@@ -42,7 +41,7 @@ public class BoardRestController {
         return responseOK(board);
     }
 
-    @PostMapping("/board")
+    @PostMapping("")
     public ResponseEntity<?> create(Authentication authentication, @Valid @RequestBody BoardRequest request, BindingResult bindingResult) {
 
         String username;
@@ -57,7 +56,7 @@ public class BoardRestController {
         return responseOK(board);
     }
 
-    @PutMapping("/board/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> update(Authentication authentication, @Valid @RequestBody BoardRequest request, BindingResult bindingResult, @PathVariable Long id) {
 
         String username;
@@ -72,7 +71,7 @@ public class BoardRestController {
         return responseOK(board);
     }
 
-    @DeleteMapping("/board/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(Authentication authentication, @Valid @RequestBody DeleteRequest request, BindingResult bindingResult, @PathVariable Long id) {
 
         String username;
