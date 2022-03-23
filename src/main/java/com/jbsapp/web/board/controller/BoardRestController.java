@@ -4,12 +4,11 @@ import com.jbsapp.web.board.domain.Board;
 import com.jbsapp.web.board.model.BoardRequest;
 import com.jbsapp.web.board.model.DeleteRequest;
 import com.jbsapp.web.board.service.BoardService;
-import com.jbsapp.web.common.model.CommonResponse;
+import com.jbsapp.web.common.util.WebResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
@@ -30,7 +29,7 @@ public class BoardRestController {
 
         Page<Board> boards = boardService.findAll(pageable);
 
-        return responseOK(boards);
+        return WebResponseEntity.OK(boards);
     }
 
     @GetMapping("/{id}")
@@ -38,7 +37,7 @@ public class BoardRestController {
 
         Board board = boardService.findOne(id);
 
-        return responseOK(board);
+        return WebResponseEntity.OK(board);
     }
 
     @PostMapping("")
@@ -53,7 +52,7 @@ public class BoardRestController {
 
         Board board = boardService.create(request, username);
 
-        return responseOK(board);
+        return WebResponseEntity.OK(board);
     }
 
     @PutMapping("/{id}")
@@ -68,7 +67,7 @@ public class BoardRestController {
 
         Board board = boardService.update(request, username, id);
 
-        return responseOK(board);
+        return WebResponseEntity.OK(board);
     }
 
     @DeleteMapping("/{id}")
@@ -83,15 +82,7 @@ public class BoardRestController {
 
         Board board = boardService.delete(request, username, id);
 
-        return responseOK(board);
+        return WebResponseEntity.OK(board);
     }
 
-    private ResponseEntity<?> responseOK(Object input) {
-        CommonResponse<Object> response = CommonResponse.builder()
-                .status(HttpStatus.OK.value())
-                .response(input)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 }

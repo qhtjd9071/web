@@ -1,13 +1,12 @@
 package com.jbsapp.web.member.controller;
 
-import com.jbsapp.web.common.model.CommonResponse;
+import com.jbsapp.web.common.util.WebResponseEntity;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.RegisterRequest;
 import com.jbsapp.web.member.model.UpdateRequest;
 import com.jbsapp.web.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class MemberRestController {
 
         Member member = memberService.join(request);
 
-        return responseOK(member);
+        return WebResponseEntity.OK(member);
     }
 
     @GetMapping("/check/{id}")
@@ -37,7 +36,7 @@ public class MemberRestController {
 
         boolean ret = memberService.isIdDuplicated(id);
 
-        return responseOK(ret);
+        return WebResponseEntity.OK(ret);
     }
 
     @PutMapping("/{id}")
@@ -46,7 +45,7 @@ public class MemberRestController {
 
         Member member = memberService.update(request, id);
 
-        return responseOK(member);
+        return WebResponseEntity.OK(member);
     }
 
     @GetMapping("/{id}")
@@ -55,7 +54,7 @@ public class MemberRestController {
 
         Member member = memberService.find(id);
 
-        return responseOK(member);
+        return WebResponseEntity.OK(member);
     }
 
     @DeleteMapping("/{id}")
@@ -64,16 +63,7 @@ public class MemberRestController {
 
         Member member = memberService.delete(id);
 
-        return responseOK(member);
-    }
-
-    private ResponseEntity<?> responseOK(Object input) {
-        CommonResponse<Object> response = CommonResponse.builder()
-                .status(HttpStatus.OK.value())
-                .response(input)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return WebResponseEntity.OK(member);
     }
 
 }
