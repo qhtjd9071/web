@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,8 +51,8 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     @Override
     public boolean isAccountNonExpired() {
-        // TODO: 2022-01-18 : 가입날짜와 마지막 로그인 날짜를 비교해 1년이 넘으면 만료로 처리
-        return true;
+        LocalDateTime current = LocalDateTime.now();
+        return !current.minusYears(1).isAfter(member.getLastLoginDate());
     }
 
     @Override

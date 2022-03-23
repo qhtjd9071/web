@@ -4,6 +4,7 @@ import com.jbsapp.web.common.domain.Time;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -41,5 +42,8 @@ public class Member extends Time {
 
   @Column
   private boolean removeYn;
+
+  @Column
+  private LocalDateTime lastLoginDate;
 
 }
