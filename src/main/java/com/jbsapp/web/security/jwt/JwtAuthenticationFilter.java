@@ -1,10 +1,7 @@
 package com.jbsapp.web.security.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbsapp.web.member.model.LoginRequest;
-import com.jbsapp.web.security.auth.CustomUserDetails;
 import com.jbsapp.web.security.jwt.exception.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor

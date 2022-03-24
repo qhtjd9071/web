@@ -1,5 +1,6 @@
 package com.jbsapp.web.security.jwt.exception;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.jbsapp.web.common.util.WebResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,9 @@ public class JwtExceptionHandler extends OncePerRequestFilter {
         } catch (JwtException ex) {
             log.error("JwtException: {}", ex.getMessage());
             WebResponseEntity.ErrorFromFilter(response, HttpStatus.BAD_REQUEST, ex.getMessage());
+        } catch (TokenExpiredException ex) {
+            log.error("TokenExpiredException: {}", ex.getMessage());
+            WebResponseEntity.ErrorFromFilter(response, HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다.");
         } catch (Exception ex) {
             log.error("Exception: {}", "Unknown Exception : " + ex.getMessage());
             WebResponseEntity.ErrorFromFilter(response, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
