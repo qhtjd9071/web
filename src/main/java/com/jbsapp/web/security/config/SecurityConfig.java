@@ -1,8 +1,11 @@
 package com.jbsapp.web.security.config;
 
 import com.jbsapp.web.member.repository.MemberRepository;
+import com.jbsapp.web.security.jwt.JwtAuthenticationFailureHandler;
 import com.jbsapp.web.security.jwt.JwtAuthenticationFilter;
+import com.jbsapp.web.security.jwt.JwtAuthenticationSuccessHandler;
 import com.jbsapp.web.security.jwt.JwtAuthorizationFilter;
+import com.jbsapp.web.security.jwt.exception.JwtExceptionHandler;
 import com.jbsapp.web.security.oauth2.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @Configuration
@@ -29,7 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
 
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilterBefore(new JwtExceptionHandler(), UsernamePasswordAuthenticationFilter.class)
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtAuthenticationSuccessHandler(), jwtAuthenticationFailureHandler()))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager()))
 
                 .authorizeRequests()
@@ -46,11 +51,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
                 .and()
 
-                .formLogin().disable()
+                .formLogin()
+                .failureHandler(new JwtAuthenticationFailureHandler())
+                .disable()
                 .httpBasic().disable()
                 .oauth2Login()
                 .userInfoEndpoint()
-                .userService(principalOuath2UserService())
+                .userService(principalOAuth2UserService())
                 ;
     }
 
@@ -60,7 +67,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public CustomOAuth2UserService principalOuath2UserService() {
+    public JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler() {
+        return new JwtAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler() {
+        return new JwtAuthenticationFailureHandler();
+    }
+
+    @Bean
+    public CustomOAuth2UserService principalOAuth2UserService() {
         return new CustomOAuth2UserService(bCryptPasswordEncoder(), memberRepository);
     }
+
 }

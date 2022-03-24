@@ -5,17 +5,22 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbsapp.web.member.model.LoginRequest;
 import com.jbsapp.web.security.auth.CustomUserDetails;
+import com.jbsapp.web.security.jwt.exception.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 
 @Slf4j
@@ -24,19 +29,30 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final AuthenticationManager authenticationManager;
 
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+
+    private final AuthenticationFailureHandler authenticationFailureHandler;
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         LoginRequest loginRequest = null;
         try {
-            loginRequest = mapper.readValue(request.getInputStream(), LoginRequest.class);
+            loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
         } catch (Exception e) {
             log.error("JwtAuthenticationFilter : objectMapper error");
             e.printStackTrace();
         }
 
         assert loginRequest != null;
+        if (loginRequest.getUsername() == null) {
+            throw new JwtException("아이디를 입력해주세요.");
+        }
+
+        if (loginRequest.getPassword() == null) {
+            throw new JwtException("비밀번호를 입력해주세요.");
+        }
+
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -47,20 +63,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication authResult) {
+                                            Authentication authResult) throws ServletException, IOException {
+        authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
+    }
 
-        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
-
-        String tmp = customUserDetails.getAuthorities().toString();
-        String roles = tmp.substring(1, tmp.length() - 1);
-
-        String jwtToken = JWT.create()
-                .withSubject(customUserDetails.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 10))
-                .withClaim("username", customUserDetails.getUsername())
-                .withClaim("roles", roles)
-                .sign(Algorithm.HMAC512("secret"));
-
-        response.addHeader("Authorization", "Bearer " + jwtToken);
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws ServletException, IOException {
+        authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
     }
 }

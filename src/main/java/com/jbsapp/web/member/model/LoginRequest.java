@@ -1,9 +1,6 @@
 package com.jbsapp.web.member.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
@@ -14,6 +11,7 @@ import javax.validation.constraints.Size;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class LoginRequest {
 
     @NotBlank(message = "아이디를 입력해주세요.")
