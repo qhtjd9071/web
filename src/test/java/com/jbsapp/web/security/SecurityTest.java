@@ -5,7 +5,6 @@ import com.jbsapp.web.common.config.RestDocConfig;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.LoginRequest;
 import com.jbsapp.web.member.repository.MemberRepository;
-import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -97,9 +96,13 @@ public class SecurityTest {
                         )))
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.response.authorization", containsString("Bearer")))
-                .andExpect(jsonPath("$.error", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.error", is(nullValue())))
         ;
+
+        Member member = memberRepository.findByUsername("test");
+        assertThat(member.getLastLoginDate(), is(notNullValue()));
     }
+
 
     @Test
     @DisplayName("로그인 실패 - 아이디 없음")
@@ -124,7 +127,7 @@ public class SecurityTest {
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.response", is(nullValue())))
                 .andExpect(jsonPath("$.error.message", is("아이디를 입력해주세요.")))
         ;
     }
@@ -152,7 +155,7 @@ public class SecurityTest {
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.response", is(nullValue())))
                 .andExpect(jsonPath("$.error.message", is("비밀번호를 입력해주세요.")))
         ;
     }
@@ -181,7 +184,7 @@ public class SecurityTest {
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.UNAUTHORIZED.value())))
-                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.response", is(nullValue())))
                 .andExpect(jsonPath("$.error.message", is("유저 인증에 실패했습니다.")))
         ;
     }
@@ -210,7 +213,7 @@ public class SecurityTest {
                 )
                 .andDo(print())
                 .andExpect(jsonPath("$.status", is(HttpStatus.UNAUTHORIZED.value())))
-                .andExpect(jsonPath("$.response", is(IsNull.nullValue())))
+                .andExpect(jsonPath("$.response", is(nullValue())))
                 .andExpect(jsonPath("$.error.message", is("유저 인증에 실패했습니다.")))
         ;
     }
