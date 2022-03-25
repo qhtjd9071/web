@@ -1,10 +1,14 @@
 package com.jbsapp.web.security;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbsapp.web.board.model.BoardRequest;
 import com.jbsapp.web.common.config.RestDocConfig;
 import com.jbsapp.web.member.domain.Member;
 import com.jbsapp.web.member.model.LoginRequest;
 import com.jbsapp.web.member.repository.MemberRepository;
+import com.jbsapp.web.security.jwt.JwtToken;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+
+import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -215,6 +221,34 @@ public class SecurityTest {
                 .andExpect(jsonPath("$.status", is(HttpStatus.UNAUTHORIZED.value())))
                 .andExpect(jsonPath("$.response", is(nullValue())))
                 .andExpect(jsonPath("$.error.message", is("유저 인증에 실패했습니다.")))
+        ;
+    }
+
+    @Test
+    @DisplayName("인가 실패 - 토큰 만료")
+    void test06() throws Exception {
+        String authorization = "Bearer " + JWT.create()
+                .withSubject("test")
+                .withExpiresAt(new Date(System.currentTimeMillis() - 1000))
+                .withClaim("username", "test")
+                .withClaim("roles", "ROLE_MEMBER")
+                .sign(Algorithm.HMAC512("secret"));
+
+        JwtToken jwtToken = new JwtToken(authorization);
+
+        BoardRequest request = BoardRequest.builder()
+                .build();
+
+        mockMvc.perform(
+                        post("/api/board")
+                                .header("Authorization", jwtToken.getAuthorization())
+                                .content(objectMapper.writeValueAsBytes(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.status", is(HttpStatus.UNAUTHORIZED.value())))
+                .andExpect(jsonPath("$.response", is(nullValue())))
+                .andExpect(jsonPath("$.error.message", is("토큰이 만료되었습니다.")))
         ;
     }
 
